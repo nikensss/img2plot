@@ -1,14 +1,7 @@
 use pbr::ProgressBar;
 use plotters::prelude::*;
 
-fn distance_to_origin(progress: f64) -> Box<dyn Fn(f64, f64) -> f64> {
-    Box::new(move |x: f64, y: f64| {
-        const A: f64 = 10.0;
-        let x = x as f64 / 10.0;
-        let y = y as f64 / 10.0;
-        ((progress - 0.5).abs() * 2.0) * (A * ((x.powi(2) + y.powi(2)).sqrt()).exp() - A)
-    })
-}
+mod utils;
 
 const OUT_FILE_NAME: &'static str = "plots/3d-plot.gif";
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -27,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         chart.with_projection(|mut p| {
             p.pitch = 0.69;
             p.scale = 0.7;
-            p.into_matrix() // build the projection matrix
+            p.into_matrix()
         });
 
         chart.configure_axes().draw()?;
@@ -36,7 +29,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             SurfaceSeries::xoz(
                 (-15..=15).map(|x| x as f64 / 5.0),
                 (-15..=15).map(|x| x as f64 / 5.0),
-                distance_to_origin(pitch as f64 / frame_count as f64),
+                utils::distance_to_origin(pitch as f64 / frame_count as f64),
             )
             .style_func(&|&v| {
                 (&HSLColor(240.0 / 360.0 - 240.0 / 360.0 * v / 5.0, 1.0, 0.7)).into()
